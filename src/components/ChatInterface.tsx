@@ -4,10 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { FileUpload } from "@/components/FileUpload";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
 import { 
   Send, Bot, User, CheckCircle, Clock, AlertCircle,
-  BookOpen, School, GraduationCap, FileCheck, PenTool, Languages
+  BookOpen, School, GraduationCap, FileCheck, PenTool, 
+  Languages, Briefcase, FileText, UserCheck, GraduationCap2,
+  FileWarning, HelpCircle, Check, X
 } from "lucide-react";
 
 type MessageType = {
@@ -20,9 +27,21 @@ type MessageType = {
 type ProcessingStepType = {
   id: string;
   name: string;
-  status: "pending" | "processing" | "completed" | "error";
+  status: "pending" | "processing" | "completed" | "error" | "warning";
   details?: string;
   icon: React.ReactNode;
+  source?: string;
+};
+
+type FormFieldType = {
+  id: string;
+  label: string;
+  value: string;
+  source?: string;
+  conflictValue?: string;
+  conflictSource?: string;
+  required: boolean;
+  category: string;
 };
 
 export function ChatInterface() {
@@ -39,8 +58,11 @@ export function ChatInterface() {
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [formFields, setFormFields] = useState<FormFieldType[]>([]);
   
+  const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const form = useForm();
   
   useEffect(() => {
     if (scrollRef.current) {
@@ -131,6 +153,18 @@ export function ChatInterface() {
         status: "pending", 
         icon: <Languages className="w-4 h-4" />,
       },
+      {
+        id: "recommendation",
+        name: "推荐信",
+        status: "pending",
+        icon: <UserCheck className="w-4 h-4" />,
+      },
+      {
+        id: "passport",
+        name: "护照/身份证",
+        status: "pending",
+        icon: <FileText className="w-4 h-4" />,
+      },
     ];
     
     setProcessingSteps(initialSteps);
@@ -160,25 +194,53 @@ export function ChatInterface() {
         setTimeout(() => {
           setProcessingSteps(prev => {
             const updated = [...prev];
+            
+            // Randomly assign statuses to demonstrate different scenarios
+            const statuses: ("completed" | "error" | "warning")[] = ["completed", "completed", "completed", "warning"];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            
             // Complete current step
-            updated[stepIndex].status = "completed";
+            updated[stepIndex].status = stepIndex === 5 && files.length < 2 ? "warning" : randomStatus;
             
             // Add details based on step
             switch (stepIndex) {
               case 0: // PS
                 updated[stepIndex].details = "已识别研究兴趣：人工智能、自然语言处理";
+                updated[stepIndex].source = "个人陈述.pdf";
                 break;
               case 1: // CV
                 updated[stepIndex].details = "已提取工作经历：3段实习经验，2个项目";
+                updated[stepIndex].source = "简历.pdf";
                 break;
               case 2: // Transcript
                 updated[stepIndex].details = "GPA：3.85/4.0，主修课程：15门";
+                updated[stepIndex].source = "成绩单.pdf";
                 break;
               case 3: // Certificates
                 updated[stepIndex].details = "本科学位：计算机科学, 优秀毕业生";
+                updated[stepIndex].source = "学位证书.jpg";
                 break;
               case 4: // Language
                 updated[stepIndex].details = "托福: 105, GRE: 325";
+                updated[stepIndex].source = "语言成绩.pdf";
+                break;
+              case 5: // Recommendation
+                if (files.length < 2) {
+                  updated[stepIndex].details = "⚠️ 仅检测到1封推荐信，申请通常需要2-3封";
+                  updated[stepIndex].source = "推荐信.pdf";
+                } else {
+                  updated[stepIndex].details = "已解析2封推荐信，推荐人：教授、实习导师";
+                  updated[stepIndex].source = "推荐信1.pdf, 推荐信2.pdf";
+                }
+                break;
+              case 6: // Passport
+                if (randomStatus === "warning") {
+                  updated[stepIndex].details = "⚠️ 护照扫描质量较低，部分信息提取置信度不高";
+                  updated[stepIndex].source = "护照扫描件.jpg";
+                } else {
+                  updated[stepIndex].details = "已提取：姓名、出生日期、护照号";
+                  updated[stepIndex].source = "护照扫描件.pdf";
+                }
                 break;
             }
             
@@ -189,24 +251,357 @@ export function ChatInterface() {
           processStep();
         }, 1500); // Time for each step processing
       } else {
-        // All steps completed
+        // All steps completed - generate form fields
         setTimeout(() => {
+          // Generate form fields with some conflicts to demonstrate
+          const generatedFields: FormFieldType[] = [
+            {
+              id: "name_cn",
+              label: "姓名（中文）",
+              value: "张明",
+              source: "学位证书.jpg",
+              required: true,
+              category: "个人信息",
+            },
+            {
+              id: "name_en",
+              label: "姓名（英文）",
+              value: "ZHANG Ming",
+              source: "护照扫描件.pdf",
+              required: true,
+              category: "个人信息",
+            },
+            {
+              id: "birth_date",
+              label: "出生日期",
+              value: "1999-05-15",
+              source: "护照扫描件.pdf",
+              required: true,
+              category: "个人信息",
+            },
+            {
+              id: "gender",
+              label: "性别",
+              value: "男",
+              source: "护照扫描件.pdf",
+              required: true,
+              category: "个人信息",
+            },
+            {
+              id: "passport",
+              label: "护照号码",
+              value: "E12345678",
+              source: "护照扫描件.pdf",
+              required: true,
+              category: "个人信息",
+            },
+            {
+              id: "email",
+              label: "电子邮箱",
+              value: "zhangming@example.com",
+              source: "简历.pdf",
+              required: true,
+              category: "个人信息",
+            },
+            {
+              id: "phone",
+              label: "电话号码",
+              value: "+86 138 0000 0000",
+              source: "简历.pdf",
+              required: true,
+              category: "个人信息",
+            },
+            {
+              id: "education_level",
+              label: "最高学历",
+              value: "本科",
+              source: "学位证书.jpg",
+              required: true,
+              category: "教育背景",
+            },
+            {
+              id: "university",
+              label: "毕业院校",
+              value: "北京大学",
+              source: "学位证书.jpg",
+              required: true,
+              category: "教育背景",
+            },
+            {
+              id: "major",
+              label: "专业",
+              value: "计算机科学",
+              source: "学位证书.jpg",
+              required: true,
+              category: "教育背景",
+            },
+            {
+              id: "gpa",
+              label: "GPA",
+              value: "3.85/4.0",
+              source: "成绩单.pdf",
+              conflictValue: "3.9/4.0",
+              conflictSource: "个人陈述.pdf",
+              required: true,
+              category: "教育背景",
+            },
+            {
+              id: "graduation_date",
+              label: "毕业日期",
+              value: "2023-06-30",
+              source: "学位证书.jpg",
+              required: true,
+              category: "教育背景",
+            },
+            {
+              id: "toefl",
+              label: "托福成绩",
+              value: "105",
+              source: "语言成绩.pdf",
+              required: true,
+              category: "语言能力",
+            },
+            {
+              id: "toefl_reading",
+              label: "托福阅读",
+              value: "28",
+              source: "语言成绩.pdf",
+              required: false,
+              category: "语言能力",
+            },
+            {
+              id: "toefl_listening",
+              label: "托福听力",
+              value: "27",
+              source: "语言成绩.pdf",
+              required: false,
+              category: "语言能力",
+            },
+            {
+              id: "toefl_speaking",
+              label: "托福口语",
+              value: "23",
+              source: "语言成绩.pdf",
+              required: false,
+              category: "语言能力",
+            },
+            {
+              id: "toefl_writing",
+              label: "托福写作",
+              value: "27",
+              source: "语言成绩.pdf",
+              required: false,
+              category: "语言能力",
+            },
+            {
+              id: "gre",
+              label: "GRE成绩",
+              value: "325",
+              source: "语言成绩.pdf",
+              required: true,
+              category: "语言能力",
+            },
+            {
+              id: "gre_verbal",
+              label: "GRE词汇",
+              value: "160",
+              source: "语言成绩.pdf",
+              required: false,
+              category: "语言能力",
+            },
+            {
+              id: "gre_quantitative",
+              label: "GRE数学",
+              value: "165",
+              source: "语言成绩.pdf",
+              required: false,
+              category: "语言能力",
+            },
+            {
+              id: "gre_writing",
+              label: "GRE写作",
+              value: "4.0",
+              source: "语言成绩.pdf",
+              required: false,
+              category: "语言能力",
+            },
+            {
+              id: "research_interests",
+              label: "研究兴趣",
+              value: "人工智能、自然语言处理",
+              source: "个人陈述.pdf",
+              required: true,
+              category: "申请信息",
+            },
+            {
+              id: "target_program",
+              label: "申请项目",
+              value: "计算机科学 (PhD)",
+              source: "个人陈述.pdf",
+              required: true,
+              category: "申请信息",
+            },
+            {
+              id: "recommender1",
+              label: "推荐人1",
+              value: "王教授，北京大学计算机科学学院",
+              source: "推荐信1.pdf",
+              required: true,
+              category: "推荐信息",
+            },
+            {
+              id: "recommender2",
+              label: "推荐人2",
+              value: "李主管，ABC科技公司",
+              source: "推荐信2.pdf",
+              required: true,
+              category: "推荐信息",
+            }
+          ];
+          
+          setFormFields(generatedFields);
+          
           const completionMsg: MessageType = {
             id: (Date.now() + 100).toString(),
             type: "system",
-            content: "材料解析完成！我已经根据您的文件自动填写了申请表，请检查并确认。",
+            content: "材料解析完成！我已经根据您的文件自动填写了申请表，请检查并确认。注意：检测到部分信息存在冲突，已用红色标记，请手动确认正确值。",
             timestamp: new Date(),
           };
           
           setMessages(prev => [...prev, completionMsg]);
           setIsProcessing(false);
           setShowForm(true);
+          
+          // Show toast for conflicts
+          if (generatedFields.some(field => field.conflictValue)) {
+            toast({
+              title: "检测到信息冲突",
+              description: "部分字段在不同文件中存在不一致，请检查并确认正确值。",
+              variant: "destructive",
+            });
+          }
+          
+          // Show toast for warnings
+          if (processingSteps.some(step => step.status === "warning")) {
+            toast({
+              title: "部分文件解析存在警告",
+              description: "某些文件解析质量不佳或信息不完整，可能需要手动补充。",
+              variant: "default",
+            });
+          }
+          
         }, 1000);
       }
     };
     
     // Start processing after a delay
     setTimeout(processStep, 1500);
+  };
+  
+  const renderFormSection = (category: string) => {
+    const categoryFields = formFields.filter(field => field.category === category);
+    
+    return (
+      <div className="space-y-4 mb-6">
+        <h3 className="text-lg font-medium">{category}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {categoryFields.map(field => (
+            <div key={field.id} className="space-y-2">
+              <div className="flex items-center">
+                <label className={`text-sm font-medium ${field.required ? 'after:content-["*"] after:ml-0.5 after:text-red-500' : ''}`}>
+                  {field.label}
+                </label>
+                {field.conflictValue && (
+                  <div className="ml-2 text-xs px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full">
+                    冲突
+                  </div>
+                )}
+              </div>
+              
+              <div className="relative">
+                <input
+                  type="text"
+                  className={`w-full border px-3 py-2 text-sm rounded-md ${
+                    field.conflictValue 
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500" 
+                      : "border-input"
+                  }`}
+                  value={field.value}
+                  onChange={(e) => {
+                    const updatedFields = formFields.map(f => 
+                      f.id === field.id ? { ...f, value: e.target.value } : f
+                    );
+                    setFormFields(updatedFields);
+                  }}
+                />
+                
+                {field.source && (
+                  <div className="absolute right-3 top-2.5">
+                    <div className="relative group">
+                      <FileText className="h-4 w-4 text-muted-foreground cursor-help" />
+                      <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-md shadow-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                        <p className="font-medium mb-1">数据来源:</p>
+                        <p>{field.source}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {field.conflictValue && (
+                <div className="flex items-center text-xs text-red-600 mt-1">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  <span>冲突值: {field.conflictValue} (来源: {field.conflictSource})</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const handleSubmitForm = () => {
+    // Check for required fields
+    const missingRequired = formFields.filter(field => field.required && !field.value);
+    
+    if (missingRequired.length > 0) {
+      toast({
+        title: "表单不完整",
+        description: `有 ${missingRequired.length} 个必填字段未完成`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check for conflicts
+    const hasConflicts = formFields.some(field => field.conflictValue);
+    
+    if (hasConflicts) {
+      const confirmMsg: MessageType = {
+        id: Date.now().toString(),
+        type: "system",
+        content: "表单中仍存在数据冲突，确定要提交吗？建议先解决所有冲突再提交。",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, confirmMsg]);
+    } else {
+      // Simulate successful submission
+      toast({
+        title: "提交成功",
+        description: "您的申请表已成功提交！",
+      });
+      
+      const successMsg: MessageType = {
+        id: Date.now().toString(),
+        type: "system",
+        content: "恭喜！您的申请表已成功提交至哈佛大学计算机科学院。您可以在"我的申请"中查看申请状态。",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, successMsg]);
+    }
   };
 
   return (
@@ -323,11 +718,19 @@ export function ChatInterface() {
                             {step.status === "error" && (
                               <AlertCircle className="h-5 w-5 text-red-500" />
                             )}
+                            {step.status === "warning" && (
+                              <FileWarning className="h-5 w-5 text-amber-500" />
+                            )}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center">
                               {step.icon}
                               <span className="ml-1 font-medium">{step.name}</span>
+                              {step.source && (
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                  ({step.source})
+                                </span>
+                              )}
                             </div>
                             {step.details && (
                               <p className="text-xs text-muted-foreground mt-1">{step.details}</p>
@@ -338,6 +741,7 @@ export function ChatInterface() {
                             {step.status === "processing" && "处理中..."}
                             {step.status === "completed" && "已完成"}
                             {step.status === "error" && "处理失败"}
+                            {step.status === "warning" && "警告"}
                           </div>
                         </div>
                       </div>
@@ -358,81 +762,56 @@ export function ChatInterface() {
                 <>
                   <Separator className="my-4" />
                   <div className="p-4">
-                    <h3 className="text-lg font-medium mb-4">哈佛大学 - 计算机科学申请表</h3>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
+                      <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                          <span>已填充</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                          <span>冲突</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
+                          <span>警告</span>
+                        </div>
+                      </div>
+                    </div>
                     
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium">姓名</label>
-                          <input
-                            type="text"
-                            className="w-full mt-1 border border-input rounded-md px-3 py-2 text-sm bg-app-blue/5"
-                            value="张明"
-                            readOnly
-                          />
+                    <div className="space-y-8">
+                      {/* Personal Information */}
+                      {renderFormSection("个人信息")}
+                      
+                      {/* Education Background */}
+                      {renderFormSection("教育背景")}
+                      
+                      {/* Language Proficiency */}
+                      {renderFormSection("语言能力")}
+                      
+                      {/* Application Info */}
+                      {renderFormSection("申请信息")}
+                      
+                      {/* Recommendation Info */}
+                      {renderFormSection("推荐信息")}
+                      
+                      <div className="flex items-center justify-between mt-6">
+                        <div className="text-sm text-muted-foreground">
+                          <span className="text-red-500">*</span> 表示必填字段
                         </div>
-                        <div>
-                          <label className="text-sm font-medium">申请专业</label>
-                          <input
-                            type="text"
-                            className="w-full mt-1 border border-input rounded-md px-3 py-2 text-sm bg-app-blue/5"
-                            value="计算机科学 (PhD)"
-                            readOnly
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium">学历背景</label>
-                        <input
-                          type="text"
-                          className="w-full mt-1 border border-input rounded-md px-3 py-2 text-sm bg-app-blue/5"
-                          value="本科：计算机科学，优秀毕业生"
-                          readOnly
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium">GPA</label>
-                        <input
-                          type="text"
-                          className="w-full mt-1 border border-input rounded-md px-3 py-2 text-sm bg-app-blue/5"
-                          value="3.85/4.0"
-                          readOnly
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium">语言成绩</label>
-                        <div className="grid grid-cols-2 gap-4 mt-1">
-                          <input
-                            type="text"
-                            className="border border-input rounded-md px-3 py-2 text-sm bg-app-blue/5"
-                            value="托福: 105"
-                            readOnly
-                          />
-                          <input
-                            type="text"
-                            className="border border-input rounded-md px-3 py-2 text-sm bg-app-blue/5"
-                            value="GRE: 325"
-                            readOnly
-                          />
+                        <div className="flex space-x-2">
+                          <Button variant="outline">
+                            保存为草稿
+                          </Button>
+                          <Button 
+                            className="bg-app-blue hover:bg-app-blue-dark"
+                            onClick={handleSubmitForm}
+                          >
+                            确认并提交申请
+                          </Button>
                         </div>
                       </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium">研究兴趣</label>
-                        <textarea
-                          className="w-full mt-1 border border-input rounded-md px-3 py-2 text-sm bg-app-blue/5 resize-none"
-                          rows={3}
-                          value="人工智能、自然语言处理"
-                          readOnly
-                        />
-                      </div>
-                      
-                      <Button className="w-full bg-app-blue hover:bg-app-blue-dark">
-                        确认并提交申请
-                      </Button>
                     </div>
                   </div>
                 </>
