@@ -1,8 +1,6 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
@@ -656,9 +654,14 @@ export function ChatInterface() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 h-full gap-4">
-          {/* Chat and file upload area */}
-          <Card className="flex flex-col h-full border">
+        {/* Dynamic layout based on showForm state */}
+        <div className={`grid h-full gap-4 transition-all duration-300 ${
+          showForm ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
+        }`}>
+          {/* Chat area */}
+          <Card className={`flex flex-col h-full border transition-all duration-300 ${
+            !showForm ? 'col-span-1 lg:col-span-1' : ''
+          }`}>
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
                 <Bot className="mr-2 h-5 w-5 text-app-blue" />
@@ -736,26 +739,18 @@ export function ChatInterface() {
               </div>
             </div>
           </Card>
-          
-          {/* Form preview */}
-          <Card className="flex flex-col h-full border">
-            <div className="p-4 border-b bg-card">
-              <h2 className="text-lg font-medium flex items-center">
-                <School className="mr-2 h-5 w-5 text-app-blue" />
-                申请表格预览
-              </h2>
-            </div>
-            
-            <div className="flex-1 overflow-auto">
-              {!showForm ? (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  <div className="text-center p-4">
-                    <School className="h-12 w-12 mx-auto mb-4 text-muted-foreground/70" />
-                    <h3 className="font-medium">申请表格预览</h3>
-                    <p className="text-sm mt-1">上传申请材料后，AI将在此处生成申请表格</p>
-                  </div>
-                </div>
-              ) : (
+
+          {/* Form preview - only shown when showForm is true */}
+          {showForm && (
+            <Card className="flex flex-col h-full border animate-fade-in">
+              <div className="p-4 border-b bg-card">
+                <h2 className="text-lg font-medium flex items-center">
+                  <School className="mr-2 h-5 w-5 text-app-blue" />
+                  申请表格预览
+                </h2>
+              </div>
+              
+              <div className="flex-1 overflow-auto">
                 <div className="p-4">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
@@ -776,7 +771,6 @@ export function ChatInterface() {
                   </div>
                   
                   <div className="space-y-8">
-                    {/* Form sections */}
                     {renderFormSection("个人信息")}
                     {renderFormSection("教育背景")}
                     {renderFormSection("语言能力")}
@@ -802,9 +796,9 @@ export function ChatInterface() {
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </Card>
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>
