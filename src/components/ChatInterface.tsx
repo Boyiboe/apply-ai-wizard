@@ -116,8 +116,6 @@ export function ChatInterface() {
     };
     
     setMessages(prev => [...prev, newMessage]);
-    
-    // Start processing simulation
     setIsProcessing(true);
     
     // Initialize processing steps
@@ -168,11 +166,26 @@ export function ChatInterface() {
     
     setProcessingSteps(initialSteps);
     
-    // Add system processing message
+    // Add processing status message to chat
     const processingMsg: MessageType = {
-      id: (Date.now() + 1).toString(),
+      id: Date.now().toString(),
       type: "system",
-      content: "正在解析您上传的申请材料，请稍等...",
+      content: (
+        <div className="space-y-3">
+          <p>正在解析您上传的申请材料，请稍等...</p>
+          <div className="bg-accent/30 rounded-md p-3">
+            <div className="space-y-2">
+              {initialSteps.map((step) => (
+                <div key={step.id} className="flex items-center text-sm">
+                  <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span>{step.name}</span>
+                  <span className="ml-auto text-xs">等待处理</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ),
       timestamp: new Date(),
     };
     
@@ -182,14 +195,48 @@ export function ChatInterface() {
     let stepIndex = 0;
     const processStep = () => {
       if (stepIndex < initialSteps.length) {
+        // Update processing steps state
         setProcessingSteps(prev => {
           const updated = [...prev];
-          // Set current step to processing
           updated[stepIndex].status = "processing";
           return updated;
         });
         
-        // Simulate processing time for current step
+        // Add processing update message to chat
+        const processingUpdateMsg: MessageType = {
+          id: Date.now().toString(),
+          type: "system",
+          content: (
+            <div className="space-y-3">
+              <div className="bg-accent/30 rounded-md p-3">
+                <div className="space-y-2">
+                  {initialSteps.map((step, idx) => (
+                    <div key={step.id} className="flex items-center text-sm">
+                      {idx < stepIndex ? (
+                        <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                      ) : idx === stepIndex ? (
+                        <div className="h-4 w-4 mr-2 rounded-full border-2 border-t-transparent border-primary animate-spin" />
+                      ) : (
+                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                      )}
+                      <span>{step.name}</span>
+                      <span className="ml-auto text-xs">
+                        {idx < stepIndex ? "已完成" : 
+                         idx === stepIndex ? "处理中..." : 
+                         "等待处理"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ),
+          timestamp: new Date(),
+        };
+        
+        setMessages(prev => [...prev, processingUpdateMsg]);
+        
+        // Continue with processing simulation
         setTimeout(() => {
           setProcessingSteps(prev => {
             const updated = [...prev];
@@ -248,7 +295,7 @@ export function ChatInterface() {
           
           stepIndex++;
           processStep();
-        }, 1500); // Time for each step processing
+        }, 1500);
       } else {
         // All steps completed - generate form fields
         setTimeout(() => {
@@ -496,113 +543,8 @@ export function ChatInterface() {
     // Start processing after a delay
     setTimeout(processStep, 1500);
   };
-  
-  const renderFormSection = (category: string) => {
-    const categoryFields = formFields.filter(field => field.category === category);
-    
-    return (
-      <div className="space-y-4 mb-6">
-        <h3 className="text-lg font-medium">{category}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {categoryFields.map(field => (
-            <div key={field.id} className="space-y-2">
-              <div className="flex items-center">
-                <label className={`text-sm font-medium ${field.required ? 'after:content-["*"] after:ml-0.5 after:text-red-500' : ''}`}>
-                  {field.label}
-                </label>
-                {field.conflictValue && (
-                  <div className="ml-2 text-xs px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full">
-                    冲突
-                  </div>
-                )}
-              </div>
-              
-              <div className="relative">
-                <input
-                  type="text"
-                  className={`w-full border px-3 py-2 text-sm rounded-md ${
-                    field.conflictValue 
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-500" 
-                      : "border-input"
-                  }`}
-                  value={field.value}
-                  onChange={(e) => {
-                    const updatedFields = formFields.map(f => 
-                      f.id === field.id ? { ...f, value: e.target.value } : f
-                    );
-                    setFormFields(updatedFields);
-                  }}
-                />
-                
-                {field.source && (
-                  <div className="absolute right-3 top-2.5">
-                    <div className="relative group">
-                      <FileText className="h-4 w-4 text-muted-foreground cursor-help" />
-                      <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-md shadow-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                        <p className="font-medium mb-1">数据来源:</p>
-                        <p>{field.source}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {field.conflictValue && (
-                <div className="flex items-center text-xs text-red-600 mt-1">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  <span>冲突值: {field.conflictValue} (来源: {field.conflictSource})</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
-  const handleSubmitForm = () => {
-    // Check for required fields
-    const missingRequired = formFields.filter(field => field.required && !field.value);
-    
-    if (missingRequired.length > 0) {
-      toast({
-        title: "表单不完整",
-        description: `有 ${missingRequired.length} 个必填字段未完成`,
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Check for conflicts
-    const hasConflicts = formFields.some(field => field.conflictValue);
-    
-    if (hasConflicts) {
-      const confirmMsg: MessageType = {
-        id: Date.now().toString(),
-        type: "system",
-        content: "表单中仍存在数据冲突，确定要提交吗？建议先解决所有冲突再提交。",
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, confirmMsg]);
-    } else {
-      // Simulate successful submission
-      toast({
-        title: "提交成功",
-        description: "您的申请表已成功提交！",
-      });
-      
-      const successMsg: MessageType = {
-        id: Date.now().toString(),
-        type: "system",
-        content: "恭喜！您的申请表已成功提交至哈佛大学计算机科学院。您可以在\"我的申请\"中查看申请状态。",
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, successMsg]);
-    }
-  };
-
+  // Modified render method to show form content
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-hidden">
@@ -687,67 +629,17 @@ export function ChatInterface() {
             </div>
           </Card>
           
-          {/* Processing status and form preview */}
+          {/* Form preview */}
           <Card className="flex flex-col h-full border">
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
                 <School className="mr-2 h-5 w-5 text-app-blue" />
-                申请表格处理
+                申请表格预览
               </h2>
             </div>
             
             <div className="flex-1 overflow-auto">
-              {processingSteps.length > 0 ? (
-                <div className="p-4">
-                  <h3 className="text-sm font-medium mb-3">材料处理进度</h3>
-                  <div className="space-y-3">
-                    {processingSteps.map((step) => (
-                      <div key={step.id} className="bg-accent/30 rounded-md p-3">
-                        <div className="flex items-center">
-                          <div className="mr-3">
-                            {step.status === "pending" && (
-                              <Clock className="h-5 w-5 text-muted-foreground" />
-                            )}
-                            {step.status === "processing" && (
-                              <div className="h-5 w-5 rounded-full border-2 border-t-transparent border-primary animate-spin" />
-                            )}
-                            {step.status === "completed" && (
-                              <CheckCircle className="h-5 w-5 text-green-500" />
-                            )}
-                            {step.status === "error" && (
-                              <AlertCircle className="h-5 w-5 text-red-500" />
-                            )}
-                            {step.status === "warning" && (
-                              <FileWarning className="h-5 w-5 text-amber-500" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center">
-                              {step.icon}
-                              <span className="ml-1 font-medium">{step.name}</span>
-                              {step.source && (
-                                <span className="ml-2 text-xs text-muted-foreground">
-                                  ({step.source})
-                                </span>
-                              )}
-                            </div>
-                            {step.details && (
-                              <p className="text-xs text-muted-foreground mt-1">{step.details}</p>
-                            )}
-                          </div>
-                          <div className="text-xs">
-                            {step.status === "pending" && "等待处理"}
-                            {step.status === "processing" && "处理中..."}
-                            {step.status === "completed" && "已完成"}
-                            {step.status === "error" && "处理失败"}
-                            {step.status === "warning" && "警告"}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
+              {!showForm ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
                   <div className="text-center p-4">
                     <School className="h-12 w-12 mx-auto mb-4 text-muted-foreground/70" />
@@ -755,65 +647,53 @@ export function ChatInterface() {
                     <p className="text-sm mt-1">上传申请材料后，AI将在此处生成申请表格</p>
                   </div>
                 </div>
-              )}
-              
-              {showForm && (
-                <>
-                  <Separator className="my-4" />
-                  <div className="p-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
-                      <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-                          <span>已填充</span>
-                        </div>
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
-                          <span>冲突</span>
-                        </div>
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
-                          <span>警告</span>
-                        </div>
+              ) : (
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                        <span>已填充</span>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-8">
-                      {/* Personal Information */}
-                      {renderFormSection("个人信息")}
-                      
-                      {/* Education Background */}
-                      {renderFormSection("教育背景")}
-                      
-                      {/* Language Proficiency */}
-                      {renderFormSection("语言能力")}
-                      
-                      {/* Application Info */}
-                      {renderFormSection("申请信息")}
-                      
-                      {/* Recommendation Info */}
-                      {renderFormSection("推荐信息")}
-                      
-                      <div className="flex items-center justify-between mt-6">
-                        <div className="text-sm text-muted-foreground">
-                          <span className="text-red-500">*</span> 表示必填字段
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button variant="outline">
-                            保存为草稿
-                          </Button>
-                          <Button 
-                            className="bg-app-blue hover:bg-app-blue-dark"
-                            onClick={handleSubmitForm}
-                          >
-                            确认并提交申请
-                          </Button>
-                        </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                        <span>冲突</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
+                        <span>警告</span>
                       </div>
                     </div>
                   </div>
-                </>
+                  
+                  <div className="space-y-8">
+                    {/* Form sections */}
+                    {renderFormSection("个人信息")}
+                    {renderFormSection("教育背景")}
+                    {renderFormSection("语言能力")}
+                    {renderFormSection("申请信息")}
+                    {renderFormSection("推荐信息")}
+                    
+                    {/* Form actions */}
+                    <div className="flex items-center justify-between mt-6">
+                      <div className="text-sm text-muted-foreground">
+                        <span className="text-red-500">*</span> 表示必填字段
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button variant="outline">
+                          保存为草稿
+                        </Button>
+                        <Button 
+                          className="bg-app-blue hover:bg-app-blue-dark"
+                          onClick={handleSubmitForm}
+                        >
+                          确认并提交申请
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </Card>
