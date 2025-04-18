@@ -79,7 +79,7 @@ export function ChatInterface() {
         id: "language",
         name: "语言成绩",
         status: "pending",
-        icon: <Globe className="w-4 h-4" />,  // Changed from Languages to Globe
+        icon: <Globe className="w-4 h-4" />,
       },
       {
         id: "recommendation",
