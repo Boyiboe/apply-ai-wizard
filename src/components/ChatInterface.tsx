@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -561,56 +562,57 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden">
-        <div
-          className={`grid h-full gap-4 transition-all duration-300 ${
-            showForm ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
-          }`}
-        >
-          <Card
-            className={`flex flex-col h-full border transition-all duration-300 ${
-              !showForm ? "col-span-1 lg:col-span-1" : ""
-            }`}
-          >
-            <div className="p-4 border-b bg-card">
-              <h2 className="text-lg font-medium flex items-center">
-                <Bot className="mr-2 h-5 w-5 text-primary" />
-                超级网申
-              </h2>
-            </div>
-
-            <ChatMessages ref={scrollRef} messages={messages} />
-
-            <div className="p-4 border-t">
-              {isProcessing ? (
-                <div className="text-center py-2 text-muted-foreground">
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-                    <span>正在处理您的申请材料...</span>
-                  </div>
-                </div>
-              ) : (
-                <FileUpload onFilesProcessed={handleFilesProcessed} />
-              )}
-            </div>
-
-            <ChatInput
-              value={inputValue}
-              onChange={setInputValue}
-              onSend={handleSendMessage}
-            />
-          </Card>
-
-          {showForm && (
-            <FormPreview
-              fields={formFields}
-              onSubmit={handleSubmitForm}
-              onFieldChange={handleFieldChange}
-            />
-          )}
+    <div className="flex flex-col h-full max-w-4xl mx-auto">
+      <Card className="flex flex-col h-full border">
+        {/* Logo Section */}
+        <div className="flex flex-col items-center justify-center p-8 border-b bg-card">
+          <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <Bot className="h-10 w-10 text-primary" />
+          </div>
+          <h2 className="text-2xl font-semibold text-primary">超级网申助手</h2>
+          <p className="text-sm text-muted-foreground mt-2">智能解析您的申请材料</p>
         </div>
-      </div>
+
+        {/* Chat Messages Area */}
+        <div className="flex-1 overflow-hidden">
+          <div className={`grid h-full gap-4 transition-all duration-300 ${
+            showForm ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+          }`}>
+            <div className={`flex flex-col h-full transition-all duration-300 ${
+              !showForm ? "col-span-1 lg:col-span-1" : ""
+            }`}>
+              <ChatMessages ref={scrollRef} messages={messages} />
+
+              <div className="p-4 border-t">
+                {isProcessing ? (
+                  <div className="text-center py-2 text-muted-foreground">
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                      <span>正在处理您的申请材料...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <FileUpload onFilesProcessed={handleFilesProcessed} />
+                )}
+              </div>
+
+              <ChatInput
+                value={inputValue}
+                onChange={setInputValue}
+                onSend={handleSendMessage}
+              />
+            </div>
+
+            {showForm && (
+              <FormPreview
+                fields={formFields}
+                onSubmit={handleSubmitForm}
+                onFieldChange={handleFieldChange}
+              />
+            )}
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
