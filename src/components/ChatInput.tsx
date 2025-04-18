@@ -11,11 +11,11 @@ interface ChatInputProps {
 export function ChatInput({ value, onChange, onSend }: ChatInputProps) {
   return (
     <div className="p-4 border-t mt-auto">
-      <div className="flex items-center">
+      <div className="flex items-center bg-background rounded-lg border">
         <input
           type="text"
-          placeholder="输入您的问题或要求..."
-          className="flex-1 bg-background border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          placeholder="输入您的问题，帮你深度解答..."
+          className="flex-1 px-4 py-3 bg-transparent border-none focus:outline-none text-sm"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => {
@@ -24,7 +24,8 @@ export function ChatInput({ value, onChange, onSend }: ChatInputProps) {
         />
         <Button
           size="icon"
-          className="ml-2 bg-app-blue hover:bg-app-blue-dark"
+          variant="ghost"
+          className="mr-2"
           onClick={onSend}
         >
           <Send className="h-4 w-4" />

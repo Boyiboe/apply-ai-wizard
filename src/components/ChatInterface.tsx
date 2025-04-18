@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Bot } from "lucide-react";
+import { Bot, Send, PenTool, FileCheck, BookOpen, GraduationCap, UserCheck, FileText, Clock, CheckCircle, Globe, Book } from "lucide-react";
 import { FileUpload } from "@/components/FileUpload";
 import { ChatMessages } from "@/components/ChatMessages";
 import { ChatInput } from "@/components/ChatInput";
@@ -78,8 +78,8 @@ export function ChatInterface() {
       {
         id: "language",
         name: "语言成绩",
-        status: "pending", 
-        icon: <Languages className="w-4 h-4" />,
+        status: "pending",
+        icon: <Globe className="w-4 h-4" />,  // Changed from Languages to Globe
       },
       {
         id: "recommendation",
@@ -575,8 +575,8 @@ export function ChatInterface() {
           >
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
-                <Bot className="mr-2 h-5 w-5 text-app-blue" />
-                AI助手对话
+                <Bot className="mr-2 h-5 w-5 text-primary" />
+                超级网申
               </h2>
             </div>
 
