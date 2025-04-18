@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -543,8 +544,115 @@ export function ChatInterface() {
     // Start processing after a delay
     setTimeout(processStep, 1500);
   };
+  
+  // Add the missing renderFormSection function
+  const renderFormSection = (category: string) => {
+    const categoryFields = formFields.filter(field => field.category === category);
+    
+    return (
+      <div className="space-y-4 mb-6">
+        <h3 className="text-lg font-medium">{category}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {categoryFields.map(field => (
+            <div key={field.id} className="space-y-2">
+              <div className="flex items-center">
+                <label className={`text-sm font-medium ${field.required ? 'after:content-["*"] after:ml-0.5 after:text-red-500' : ''}`}>
+                  {field.label}
+                </label>
+                {field.conflictValue && (
+                  <div className="ml-2 text-xs px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full">
+                    冲突
+                  </div>
+                )}
+              </div>
+              
+              <div className="relative">
+                <input
+                  type="text"
+                  className={`w-full border px-3 py-2 text-sm rounded-md ${
+                    field.conflictValue 
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500" 
+                      : "border-input"
+                  }`}
+                  value={field.value}
+                  onChange={(e) => {
+                    const updatedFields = formFields.map(f => 
+                      f.id === field.id ? { ...f, value: e.target.value } : f
+                    );
+                    setFormFields(updatedFields);
+                  }}
+                />
+                
+                {field.source && (
+                  <div className="absolute right-3 top-2.5">
+                    <div className="relative group">
+                      <FileText className="h-4 w-4 text-muted-foreground cursor-help" />
+                      <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-md shadow-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                        <p className="font-medium mb-1">数据来源:</p>
+                        <p>{field.source}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {field.conflictValue && (
+                <div className="flex items-center text-xs text-red-600 mt-1">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  <span>冲突值: {field.conflictValue} (来源: {field.conflictSource})</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
-  // Modified render method to show form content
+  // Add the missing handleSubmitForm function
+  const handleSubmitForm = () => {
+    // Check for required fields
+    const missingRequired = formFields.filter(field => field.required && !field.value);
+    
+    if (missingRequired.length > 0) {
+      toast({
+        title: "表单不完整",
+        description: `有 ${missingRequired.length} 个必填字段未完成`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check for conflicts
+    const hasConflicts = formFields.some(field => field.conflictValue);
+    
+    if (hasConflicts) {
+      const confirmMsg: MessageType = {
+        id: Date.now().toString(),
+        type: "system",
+        content: "表单中仍存在数据冲突，确定要提交吗？建议先解决所有冲突再提交。",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, confirmMsg]);
+    } else {
+      // Simulate successful submission
+      toast({
+        title: "提交成功",
+        description: "您的申请表已成功提交！",
+      });
+      
+      const successMsg: MessageType = {
+        id: Date.now().toString(),
+        type: "system",
+        content: "恭喜！您的申请表已成功提交至哈佛大学计算机科学院。您可以在\"我的申请\"中查看申请状态。",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, successMsg]);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-hidden">
