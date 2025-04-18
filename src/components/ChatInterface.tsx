@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { 
   Send, Bot, User, CheckCircle, Clock, AlertCircle,
   BookOpen, School, GraduationCap, FileCheck, PenTool, 
-  Languages, Briefcase, FileText, UserCheck, GraduationCap2,
+  Languages, Briefcase, FileText, UserCheck,
   FileWarning, HelpCircle, Check, X
 } from "lucide-react";
 
