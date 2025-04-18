@@ -596,7 +596,7 @@ export function ChatInterface() {
       const successMsg: MessageType = {
         id: Date.now().toString(),
         type: "system",
-        content: "恭喜！您的申请表已成功提交至哈佛大学计算机科学院。您可以在"我的申请"中查看申请状态。",
+        content: "恭喜！您的申请表已成功提交至哈佛大学计算机科学院。您可以在\"我的申请\"中查看申请状态。",
         timestamp: new Date(),
       };
       
