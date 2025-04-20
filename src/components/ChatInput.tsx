@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Send, Import, Attach } from "lucide-react";
+import { Send, Upload, Paperclip } from "lucide-react";
 
 interface ChatInputProps {
   value: string;
@@ -19,7 +19,7 @@ export function ChatInput({ value, onChange, onSend }: ChatInputProps) {
               variant="ghost" 
               className="text-white/70 hover:text-white hover:bg-white/10"
             >
-              <Attach className="h-5 w-5" />
+              <Paperclip className="h-5 w-5" />
               <span className="ml-2">Attach</span>
             </Button>
             <Button 
@@ -27,7 +27,7 @@ export function ChatInput({ value, onChange, onSend }: ChatInputProps) {
               variant="ghost" 
               className="text-white/70 hover:text-white hover:bg-white/10"
             >
-              <Import className="h-5 w-5" />
+              <Upload className="h-5 w-5" />
               <span className="ml-2">Import</span>
             </Button>
           </div>
