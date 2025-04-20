@@ -49,6 +49,21 @@
     --sidebar-border: 214.3 31.8% 91.4%;
 
     --sidebar-ring: 200 85% 49%;
+
+    --background: 88 75% 98%;
+    --foreground: 120 30% 20%;
+    
+    --card: 88 75% 98%;
+    --card-foreground: 120 30% 20%;
+    
+    --primary: 142 76% 36%;
+    --primary-foreground: 355 100% 100%;
+    
+    --secondary: 142 50% 96%;
+    --secondary-foreground: 142 76% 36%;
+    
+    --accent: 142 50% 96%;
+    --accent-foreground: 142 76% 36%;
   }
 
   .dark {
