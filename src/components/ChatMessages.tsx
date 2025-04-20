@@ -23,21 +23,23 @@ export const ChatMessages = forwardRef<HTMLDivElement, ChatMessagesProps>(
               <div
                 className={`max-w-[80%] rounded-lg p-3 ${
                   message.type === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                    ? "bg-blue-500 text-white"
+                    : "bg-[#E5F3FF]"
                 }`}
               >
                 <div className="flex items-center mb-1">
                   {message.type === "system" ? (
-                    <Bot className="h-4 w-4 mr-1" />
+                    <Bot className="h-4 w-4 mr-1 text-blue-600" />
                   ) : (
-                    <User className="h-4 w-4 mr-1" />
+                    <User className="h-4 w-4 mr-1 text-white" />
                   )}
-                  <span className="text-xs opacity-70">
-                    {message.type === "system" ? "AI助手" : "您"}
+                  <span className={`text-xs ${message.type === "user" ? "text-white/90" : "text-blue-600"}`}>
+                    {message.type === "system" ? "KIMI" : "您"}
                   </span>
                 </div>
-                <div>{message.content}</div>
+                <div className={`${message.type === "user" ? "text-white" : "text-gray-700"}`}>
+                  {message.content}
+                </div>
               </div>
             </div>
           ))}

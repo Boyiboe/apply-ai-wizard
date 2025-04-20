@@ -11,7 +11,7 @@ export function ChatInterface() {
     {
       id: "welcome",
       type: "system",
-      content: "您好！我是您的AI助手，请问有什么可以帮您？",
+      content: "您好！我是KIMI，请问有什么可以帮您？",
       timestamp: new Date(),
     },
   ]);
@@ -38,32 +38,28 @@ export function ChatInterface() {
     setMessages(prev => [...prev, newMessage]);
     setInputValue("");
     
-    // Simulate system response
     setTimeout(() => {
       const systemResponse: MessageType = {
         id: (Date.now() + 1).toString(),
         type: "system",
-        content: "我已收到您的消息，请问还有什么需要帮助的吗？",
+        content: "我理解您的问题，让我为您详细解答...",
         timestamp: new Date(),
       };
-      
       setMessages(prev => [...prev, systemResponse]);
     }, 1000);
   };
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto">
-      <Card className="flex flex-col h-full border border-green-100">
-        {/* Logo Section */}
-        <div className="flex flex-col items-center justify-center p-8 border-b bg-[#F2FCE2]/80">
-          <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
-            <Bot className="h-10 w-10 text-green-600" />
+    <div className="flex flex-col h-full max-w-5xl mx-auto">
+      <Card className="flex flex-col h-full border border-blue-100">
+        <div className="flex flex-col items-center justify-center p-8 border-b bg-[#E5F3FF]/80">
+          <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+            <Bot className="h-10 w-10 text-blue-600" />
           </div>
-          <h2 className="text-2xl font-semibold text-green-700">AI助手</h2>
-          <p className="text-sm text-green-600/80 mt-2">随时为您解答问题</p>
+          <h2 className="text-3xl font-bold text-blue-900">KIMI</h2>
+          <p className="text-sm text-blue-600/80 mt-2">AI智能助手</p>
         </div>
 
-        {/* Chat Messages Area */}
         <div className="flex-1 overflow-hidden">
           <div className="h-full">
             <div className="flex flex-col h-full">

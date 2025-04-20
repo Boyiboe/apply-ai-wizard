@@ -50,20 +50,20 @@
 
     --sidebar-ring: 200 85% 49%;
 
-    --background: 88 75% 98%;
-    --foreground: 120 30% 20%;
+    --background: 210 50% 98%;
+    --foreground: 220 20% 20%;
     
-    --card: 88 75% 98%;
-    --card-foreground: 120 30% 20%;
+    --card: 210 50% 98%;
+    --card-foreground: 220 20% 20%;
     
-    --primary: 142 76% 36%;
-    --primary-foreground: 355 100% 100%;
+    --primary: 200 85% 45%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 142 50% 96%;
-    --secondary-foreground: 142 76% 36%;
+    --secondary: 200 50% 96%;
+    --secondary-foreground: 200 85% 40%;
     
-    --accent: 142 50% 96%;
-    --accent-foreground: 142 76% 36%;
+    --accent: 200 50% 96%;
+    --accent-foreground: 200 85% 40%;
   }
 
   .dark {
