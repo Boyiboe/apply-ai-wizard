@@ -1,8 +1,9 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, User } from "lucide-react";
+import { User } from "lucide-react";
 import { MessageType } from "@/types/chat";
 import { forwardRef } from "react";
+import { SuperApplyLogo } from "@/components/SuperApplyLogo";
 
 interface ChatMessagesProps {
   messages: MessageType[];
@@ -23,18 +24,20 @@ export const ChatMessages = forwardRef<HTMLDivElement, ChatMessagesProps>(
               <div
                 className={`max-w-[80%] rounded-lg p-3 ${
                   message.type === "user"
-                    ? "bg-blue-500 text-white"
+                    ? "bg-[#FF6B35] text-white"
                     : "bg-[#E5F3FF]"
                 }`}
               >
                 <div className="flex items-center mb-1">
                   {message.type === "system" ? (
-                    <Bot className="h-4 w-4 mr-1 text-blue-600" />
+                    <div className="h-4 w-4 mr-1">
+                      <SuperApplyLogo className="h-4 w-4" />
+                    </div>
                   ) : (
                     <User className="h-4 w-4 mr-1 text-white" />
                   )}
-                  <span className={`text-xs ${message.type === "user" ? "text-white/90" : "text-blue-600"}`}>
-                    {message.type === "system" ? "KIMI" : "您"}
+                  <span className={`text-xs ${message.type === "user" ? "text-white/90" : "text-[#003366]"}`}>
+                    {message.type === "system" ? "超级网申" : "您"}
                   </span>
                 </div>
                 <div className={`${message.type === "user" ? "text-white" : "text-gray-700"}`}>

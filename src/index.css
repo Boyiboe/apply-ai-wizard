@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 200 85% 49%;
+    --primary: 210 100% 20%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -56,14 +56,19 @@
     --card: 210 50% 98%;
     --card-foreground: 220 20% 20%;
     
-    --primary: 200 85% 45%;
+    --primary: 210 100% 20%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 200 50% 96%;
-    --secondary-foreground: 200 85% 40%;
+    --secondary: 24 90% 60%;
+    --secondary-foreground: 0 0% 100%;
     
     --accent: 200 50% 96%;
     --accent-foreground: 200 85% 40%;
+
+    /* Brand colors */
+    --brand-blue: 210 100% 20%;
+    --brand-orange: 15 100% 60%;
+    --brand-light-blue: 210 100% 95%;
   }
 
   .dark {
