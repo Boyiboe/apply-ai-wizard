@@ -725,15 +725,14 @@ export function ChatInterface() {
           </Card>
           
           {/* Form preview */}
-          <Card className="flex flex-col h-full border">
+          <Card className="relative flex flex-col h-full border">
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
                 <School className="mr-2 h-5 w-5 text-app-blue" />
                 申请表格预览
               </h2>
             </div>
-            
-            <div className="flex-1 overflow-auto">
+            <div className="relative flex-1">
               {!showForm ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
                   <div className="text-center p-4">
@@ -743,50 +742,51 @@ export function ChatInterface() {
                   </div>
                 </div>
               ) : (
-                <div className="p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-                        <span>已填充</span>
+                <div className="h-full flex flex-col">
+                  {/* Scrollable preview */}
+                  <div className="flex-1 overflow-hidden">
+                    <ScrollArea className="h-full pr-3">
+                      <div className="p-4 pb-24 space-y-8">
+                        {/* Form header和状态说明 */}
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            <div className="flex items-center">
+                              <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                              <span>已填充</span>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                              <span>冲突</span>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
+                              <span>警告</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Form sections */}
+                        {renderFormSection("个人信息")}
+                        {renderFormSection("教育背景")}
+                        {renderFormSection("语言能力")}
+                        {renderFormSection("申请信息")}
+                        {renderFormSection("推荐信息")}
+
+                        {/* 占位，用于底部按钮与内容分离 */}
+                        <div className="h-12 md:h-16" />
                       </div>
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
-                        <span>冲突</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
-                        <span>警告</span>
-                      </div>
-                    </div>
+                    </ScrollArea>
                   </div>
-                  
-                  <div className="space-y-8">
-                    {/* Form sections */}
-                    {renderFormSection("个人信息")}
-                    {renderFormSection("教育背景")}
-                    {renderFormSection("语言能力")}
-                    {renderFormSection("申请信息")}
-                    {renderFormSection("推荐信息")}
-                    
-                    {/* Form actions */}
-                    <div className="flex items-center justify-between mt-6">
-                      <div className="text-sm text-muted-foreground">
-                        <span className="text-red-500">*</span> 表示必填字段
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button variant="outline">
-                          保存为草稿
-                        </Button>
-                        <Button 
-                          className="bg-app-blue hover:bg-app-blue-dark"
-                          onClick={handleSubmitForm}
-                        >
-                          确认并提交申请
-                        </Button>
-                      </div>
-                    </div>
+
+                  {/* 悬浮的右下角submit按钮 */}
+                  <div className="absolute bottom-4 right-4 z-20">
+                    <Button
+                      className="bg-app-blue hover:bg-app-blue-dark min-w-[140px] shadow-lg"
+                      onClick={handleSubmitForm}
+                    >
+                      确认并提交申请
+                    </Button>
                   </div>
                 </div>
               )}
