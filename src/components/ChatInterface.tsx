@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { FileUpload } from "@/components/FileUpload";
@@ -178,10 +179,14 @@ export function ChatInterface() {
     let stepIndex = 0;
     const processStep = () => {
       if (stepIndex < initialSteps.length) {
-        // Update processing steps state
+        // Update processing steps state - 修复此处确保索引有效
         setProcessingSteps(prev => {
+          // 创建一个新的数组副本
           const updated = [...prev];
-          updated[stepIndex].status = "processing";
+          // 确保索引有效
+          if (stepIndex >= 0 && stepIndex < updated.length) {
+            updated[stepIndex].status = "processing";
+          }
           return updated;
         });
         
@@ -223,6 +228,11 @@ export function ChatInterface() {
         setTimeout(() => {
           setProcessingSteps(prev => {
             const updated = [...prev];
+            
+            // 确保索引有效 - 修复这里
+            if (stepIndex < 0 || stepIndex >= updated.length) {
+              return updated;
+            }
             
             // Randomly assign statuses to demonstrate different scenarios
             const statuses: ("completed" | "error" | "warning")[] = ["completed", "completed", "completed", "warning"];
