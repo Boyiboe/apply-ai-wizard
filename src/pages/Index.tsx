@@ -6,7 +6,7 @@ const Index = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       <AppSidebar />
-      <main className="flex-1 overflow-auto p-4">
+      <main className="flex-1 h-full overflow-hidden">
         <ChatInterface />
       </main>
     </div>

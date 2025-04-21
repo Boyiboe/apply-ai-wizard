@@ -44,6 +44,7 @@ type FormFieldType = {
 };
 
 export function ChatInterface() {
+  
   const [messages, setMessages] = useState<MessageType[]>([
     {
       id: "welcome",
@@ -61,11 +62,13 @@ export function ChatInterface() {
   
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const form = useForm();
   
+  // 自动滚动到最新消息
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
   
@@ -94,6 +97,7 @@ export function ChatInterface() {
       setMessages(prev => [...prev, systemResponse]);
     }, 1000);
   };
+  
   
   const handleFilesProcessed = (files: string[]) => {
     // Add user message for uploaded files
@@ -638,12 +642,12 @@ export function ChatInterface() {
     );
   };
 
-  // Modified render method to properly handle scrolling
+  // 修改渲染方法以正确处理滚动
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 h-full gap-4">
-          {/* Chat and file upload area */}
+          {/* 聊天和文件上传区域 */}
           <Card className="flex flex-col h-full border">
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
@@ -652,8 +656,8 @@ export function ChatInterface() {
               </h2>
             </div>
             
-            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-              <div className="space-y-4">
+            <ScrollArea className="flex-1">
+              <div className="space-y-4 p-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -682,10 +686,11 @@ export function ChatInterface() {
                     </div>
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
             
-            {/* File upload component */}
+            {/* 文件上传组件 */}
             <div className="p-4 border-t">
               {isProcessing ? (
                 <div className="text-center py-2 text-muted-foreground">
@@ -699,7 +704,7 @@ export function ChatInterface() {
               )}
             </div>
             
-            {/* Input area */}
+            {/* 输入区域 */}
             <div className="p-4 border-t mt-auto">
               <div className="flex items-center">
                 <input
@@ -723,7 +728,7 @@ export function ChatInterface() {
             </div>
           </Card>
           
-          {/* Form preview with fixed scrolling */}
+          {/* 表单预览区域 - 修复滚动问题 */}
           <Card className="relative flex flex-col h-full border">
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
@@ -741,10 +746,10 @@ export function ChatInterface() {
                   </div>
                 </div>
               ) : (
-                <div className="h-full">
-                  {/* 修正滚动区域的实现 */}
+                <div className="h-full relative">
+                  {/* 完全修复的滚动区域实现 */}
                   <ScrollArea className="h-full">
-                    <div className="p-4 pb-28">
+                    <div className="p-4 pb-32">
                       {/* 表单头部和状态说明 */}
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
@@ -773,8 +778,8 @@ export function ChatInterface() {
                     </div>
                   </ScrollArea>
 
-                  {/* 悬浮的右下角submit按钮 */}
-                  <div className="absolute bottom-4 right-4 z-50">
+                  {/* 悬浮的右下角submit按钮 - 增加z-index确保显示 */}
+                  <div className="absolute bottom-6 right-6 z-50">
                     <Button
                       className="bg-app-blue hover:bg-app-blue-dark min-w-[140px] shadow-lg"
                       onClick={handleSubmitForm}
