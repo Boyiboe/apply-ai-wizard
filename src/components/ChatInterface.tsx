@@ -568,7 +568,6 @@ export function ChatInterface() {
     setShowForm(false);
   };
   
-  // Add the missing renderFormSection function
   const renderFormSection = (category: string) => {
     const categoryFields = formFields.filter(field => field.category === category);
     
