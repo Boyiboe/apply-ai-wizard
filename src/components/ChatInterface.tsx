@@ -1,20 +1,17 @@
-import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { FileUpload } from "@/components/FileUpload";
 import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
 import { 
-  Send, Bot, User, CheckCircle, Clock, AlertCircle,
+  Send, Bot, CheckCircle, Clock, 
   BookOpen, School, GraduationCap, FileCheck, PenTool, 
-  Languages, Briefcase, FileText, UserCheck,
-  FileWarning, HelpCircle, Check, X
+  Languages, UserCheck, FileText, FileWarning, HelpCircle, Check, X
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+
+import { ChatMessages } from "./ChatMessages";
+import { ChatInput } from "./ChatInput";
+import { FormPreview } from "./FormPreview";
 
 type MessageType = {
   id: string;
@@ -44,7 +41,6 @@ type FormFieldType = {
 };
 
 export function ChatInterface() {
-  
   const [messages, setMessages] = useState<MessageType[]>([
     {
       id: "welcome",
@@ -53,47 +49,24 @@ export function ChatInterface() {
       timestamp: new Date(),
     },
   ]);
-  
   const [processingSteps, setProcessingSteps] = useState<ProcessingStepType[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formFields, setFormFields] = useState<FormFieldType[]>([]);
-  
   const { toast } = useToast();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatScrollAreaRef = useRef<HTMLDivElement>(null);
   const form = useForm();
-  
-  // 自动滚动到最新消息，但保留用户的滚动位置
-  useEffect(() => {
-    // 如果用户滚动到底部附近（100px内），则自动滚动到底部
-    // 否则保持当前滚动位置，让用户可以继续查看历史消息
-    if (chatScrollAreaRef.current) {
-      const scrollElement = chatScrollAreaRef.current;
-      const isNearBottom = 
-        scrollElement.scrollHeight - scrollElement.clientHeight - scrollElement.scrollTop < 100;
-      
-      if (isNearBottom && messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  }, [messages]);
-  
+
   const handleSendMessage = () => {
     if (inputValue.trim() === "") return;
-    
     const newMessage: MessageType = {
       id: Date.now().toString(),
       type: "user",
       content: inputValue,
       timestamp: new Date(),
     };
-    
     setMessages(prev => [...prev, newMessage]);
     setInputValue("");
-    
-    // Simulate system response after a delay
     setTimeout(() => {
       const systemResponse: MessageType = {
         id: (Date.now() + 1).toString(),
@@ -101,12 +74,10 @@ export function ChatInterface() {
         content: "我已收到您的消息。您可以继续上传申请材料，或者提出有关申请流程的问题。",
         timestamp: new Date(),
       };
-      
       setMessages(prev => [...prev, systemResponse]);
     }, 1000);
   };
-  
-  
+
   const handleFilesProcessed = (files: string[]) => {
     // Add user message for uploaded files
     const fileListMsg = (
@@ -579,76 +550,6 @@ export function ChatInterface() {
     setMessages(prev => [...prev, confirmationMsg]);
     setShowForm(false);
   };
-  
-  const renderFormSection = (category: string) => {
-    const categoryFields = formFields.filter(field => field.category === category);
-    
-    if (categoryFields.length === 0) return null;
-    
-    return (
-      <div className="mb-6">
-        <h4 className="text-base font-medium mb-3">{category}</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {categoryFields.map((field) => (
-            <div key={field.id} className="space-y-1">
-              <div className="flex items-center">
-                <label className="text-sm font-medium">
-                  {field.label}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
-                </label>
-                {field.conflictValue && (
-                  <div className="ml-auto flex items-center text-xs text-red-500">
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    <span>信息冲突</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex flex-col space-y-2">
-                <div className="relative">
-                  <input
-                    type="text"
-                    className={`w-full border px-3 py-2 rounded-md text-sm ${
-                      field.conflictValue ? "border-red-300 bg-red-50" : "border-input"
-                    }`}
-                    defaultValue={field.value}
-                  />
-                  {field.source && (
-                    <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                      <FileText className="h-3 w-3 mr-1" />
-                      <span>来源: {field.source}</span>
-                    </div>
-                  )}
-                </div>
-                
-                {field.conflictValue && (
-                  <div className="bg-muted p-2 rounded-md text-sm border border-border">
-                    <div className="flex justify-between items-center">
-                      <div className="text-xs text-muted-foreground flex items-center">
-                        <FileWarning className="h-3 w-3 mr-1" />
-                        <span>冲突值 (来源: {field.conflictSource})</span>
-                      </div>
-                      <div className="flex space-x-1">
-                        <button className="text-xs bg-green-500 text-white p-1 rounded-sm flex items-center">
-                          <Check className="h-3 w-3 mr-0.5" />
-                          <span>使用</span>
-                        </button>
-                        <button className="text-xs bg-muted-foreground text-white p-1 rounded-sm flex items-center">
-                          <X className="h-3 w-3 mr-0.5" />
-                          <span>忽略</span>
-                        </button>
-                      </div>
-                    </div>
-                    <div className="mt-1">{field.conflictValue}</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   // 渲染方法
   return (
@@ -663,45 +564,9 @@ export function ChatInterface() {
                 AI助手对话
               </h2>
             </div>
-            
-            <div 
-              className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300" 
-              ref={chatScrollAreaRef}
-            >
-              <div className="space-y-4 p-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.type === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
-                        message.type === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
-                      }`}
-                    >
-                      <div className="flex items-center mb-1">
-                        {message.type === "system" ? (
-                          <Bot className="h-4 w-4 mr-1" />
-                        ) : (
-                          <User className="h-4 w-4 mr-1" />
-                        )}
-                        <span className="text-xs opacity-70">
-                          {message.type === "system" ? "AI助手" : "您"}
-                        </span>
-                      </div>
-                      <div>{message.content}</div>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-            </div>
-            
-            {/* 文件上传组件 */}
+            {/* 聊天消息显示 */}
+            <ChatMessages messages={messages} />
+            {/* 文件上传 */}
             <div className="p-4 border-t">
               {isProcessing ? (
                 <div className="text-center py-2 text-muted-foreground">
@@ -714,31 +579,16 @@ export function ChatInterface() {
                 <FileUpload onFilesProcessed={handleFilesProcessed} />
               )}
             </div>
-            
             {/* 输入区域 */}
             <div className="p-4 border-t mt-auto">
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  placeholder="输入您的问题或要求..."
-                  className="flex-1 bg-background border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSendMessage();
-                  }}
-                />
-                <Button
-                  size="icon"
-                  className="ml-2 bg-app-blue hover:bg-app-blue-dark"
-                  onClick={handleSendMessage}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
+              <ChatInput
+                inputValue={inputValue}
+                setInputValue={setInputValue}
+                onSend={handleSendMessage}
+                disabled={isProcessing}
+              />
             </div>
           </Card>
-          
           {/* 表单预览区域 */}
           <Card className="relative flex flex-col h-full border">
             <div className="p-4 border-b bg-card">
@@ -747,59 +597,11 @@ export function ChatInterface() {
                 申请表格预览
               </h2>
             </div>
-            <div className="relative flex-1 overflow-hidden">
-              {!showForm ? (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  <div className="text-center p-4">
-                    <School className="h-12 w-12 mx-auto mb-4 text-muted-foreground/70" />
-                    <h3 className="font-medium">申请表格预览</h3>
-                    <p className="text-sm mt-1">上传申请材料后，AI将在此处生成申请表格</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-full relative">
-                  <div className="h-full overflow-auto pb-20">
-                    <div className="p-4">
-                      {/* 表单头部和状态说明 */}
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
-                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-                            <span>已填充</span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
-                            <span>冲突</span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
-                            <span>警告</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 表单部分 */}
-                      {renderFormSection("个人信息")}
-                      {renderFormSection("教育背景")}
-                      {renderFormSection("语言能力")}
-                      {renderFormSection("申请信息")}
-                      {renderFormSection("推荐信息")}
-                    </div>
-                  </div>
-
-                  {/* 悬浮的右下角submit按钮 */}
-                  <div className="sticky bottom-6 right-6 float-right mr-6 z-50">
-                    <Button
-                      className="bg-app-blue hover:bg-app-blue-dark min-w-[140px] shadow-lg"
-                      onClick={handleSubmitForm}
-                    >
-                      确认并提交申请
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <FormPreview
+              showForm={showForm}
+              formFields={formFields}
+              onSubmit={handleSubmitForm}
+            />
           </Card>
         </div>
       </div>
