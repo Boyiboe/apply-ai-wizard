@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { FileUpload } from "@/components/FileUpload";
@@ -150,7 +149,7 @@ export function ChatInterface() {
     
     setProcessingSteps(initialSteps);
     
-    // Add processing status message to chat
+    // Add processing status message to chat（只添加一次）
     const processingMsg: MessageType = {
       id: Date.now().toString(),
       type: "system",
@@ -175,72 +174,30 @@ export function ChatInterface() {
     
     setMessages(prev => [...prev, processingMsg]);
     
-    // Simulate processing steps with delays
+    // Simulate processing steps with delays（只刷新进度，不再插入进度消息到聊天）
     let stepIndex = 0;
     const processStep = () => {
       if (stepIndex < initialSteps.length) {
-        // Update processing steps state - 修复此处确保索引有效
+        // Update processing steps state 
         setProcessingSteps(prev => {
-          // 创建一个新的数组副本
           const updated = [...prev];
-          // 确保索引有效
           if (stepIndex >= 0 && stepIndex < updated.length) {
             updated[stepIndex].status = "processing";
           }
           return updated;
         });
-        
-        // Add processing update message to chat
-        const processingUpdateMsg: MessageType = {
-          id: Date.now().toString(),
-          type: "system",
-          content: (
-            <div className="space-y-3">
-              <div className="bg-accent/30 rounded-md p-3">
-                <div className="space-y-2">
-                  {initialSteps.map((step, idx) => (
-                    <div key={step.id} className="flex items-center text-sm">
-                      {idx < stepIndex ? (
-                        <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                      ) : idx === stepIndex ? (
-                        <div className="h-4 w-4 mr-2 rounded-full border-2 border-t-transparent border-primary animate-spin" />
-                      ) : (
-                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                      )}
-                      <span>{step.name}</span>
-                      <span className="ml-auto text-xs">
-                        {idx < stepIndex ? "已完成" : 
-                         idx === stepIndex ? "处理中..." : 
-                         "等待处理"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ),
-          timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, processingUpdateMsg]);
-        
-        // Continue with processing simulation
+        // 不再插入进度消息到聊天
         setTimeout(() => {
           setProcessingSteps(prev => {
             const updated = [...prev];
-            
-            // 确保索引有效 - 修复这里
             if (stepIndex < 0 || stepIndex >= updated.length) {
               return updated;
             }
-            
             // Randomly assign statuses to demonstrate different scenarios
             const statuses: ("completed" | "error" | "warning")[] = ["completed", "completed", "completed", "warning"];
             const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-            
             // Complete current step
             updated[stepIndex].status = stepIndex === 5 && files.length < 2 ? "warning" : randomStatus;
-            
             // Add details based on step
             switch (stepIndex) {
               case 0: // PS
@@ -282,10 +239,8 @@ export function ChatInterface() {
                 }
                 break;
             }
-            
             return updated;
           });
-          
           stepIndex++;
           processStep();
         }, 1500);
