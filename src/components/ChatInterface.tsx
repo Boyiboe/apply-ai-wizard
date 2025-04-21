@@ -638,7 +638,7 @@ export function ChatInterface() {
     );
   };
 
-  // Modified render method to show form content
+  // Modified render method to properly handle scrolling
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-hidden">
@@ -723,7 +723,7 @@ export function ChatInterface() {
             </div>
           </Card>
           
-          {/* Form preview */}
+          {/* Form preview with fixed scrolling */}
           <Card className="relative flex flex-col h-full border">
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
@@ -731,7 +731,7 @@ export function ChatInterface() {
                 申请表格预览
               </h2>
             </div>
-            <div className="relative flex-1 overflow-auto">
+            <div className="relative flex-1 overflow-hidden">
               {!showForm ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
                   <div className="text-center p-4">
@@ -741,10 +741,10 @@ export function ChatInterface() {
                   </div>
                 </div>
               ) : (
-                <div className="h-full flex flex-col relative">
-                  {/* 使用 ScrollArea 组件包装表单内容 */}
-                  <ScrollArea className="h-full w-full">
-                    <div className="p-4 pb-20">
+                <div className="h-full">
+                  {/* 修正滚动区域的实现 */}
+                  <ScrollArea className="h-full">
+                    <div className="p-4 pb-28">
                       {/* 表单头部和状态说明 */}
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
@@ -774,7 +774,7 @@ export function ChatInterface() {
                   </ScrollArea>
 
                   {/* 悬浮的右下角submit按钮 */}
-                  <div className="absolute bottom-4 right-4 z-10">
+                  <div className="absolute bottom-4 right-4 z-50">
                     <Button
                       className="bg-app-blue hover:bg-app-blue-dark min-w-[140px] shadow-lg"
                       onClick={handleSubmitForm}
