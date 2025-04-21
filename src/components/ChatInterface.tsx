@@ -731,7 +731,7 @@ export function ChatInterface() {
                 申请表格预览
               </h2>
             </div>
-            <div className="relative flex-1">
+            <div className="relative flex-1 overflow-hidden">
               {!showForm ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
                   <div className="text-center p-4">
@@ -743,40 +743,38 @@ export function ChatInterface() {
               ) : (
                 <div className="h-full flex flex-col">
                   {/* Scrollable preview */}
-                  <div className="flex-1 overflow-hidden">
-                    <ScrollArea className="h-full pr-3">
-                      <div className="p-4 pb-24 space-y-8">
-                        {/* Form header和状态说明 */}
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            <div className="flex items-center">
-                              <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-                              <span>已填充</span>
-                            </div>
-                            <div className="flex items-center">
-                              <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
-                              <span>冲突</span>
-                            </div>
-                            <div className="flex items-center">
-                              <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
-                              <span>警告</span>
-                            </div>
+                  <ScrollArea className="flex-1 h-full">
+                    <div className="p-4 pb-24">
+                      {/* Form header和状态说明 */}
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
+                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                            <span>已填充</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                            <span>冲突</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-amber-500 mr-1"></div>
+                            <span>警告</span>
                           </div>
                         </div>
-
-                        {/* Form sections */}
-                        {renderFormSection("个人信息")}
-                        {renderFormSection("教育背景")}
-                        {renderFormSection("语言能力")}
-                        {renderFormSection("申请信息")}
-                        {renderFormSection("推荐信息")}
-
-                        {/* 占位，用于底部按钮与内容分离 */}
-                        <div className="h-12 md:h-16" />
                       </div>
-                    </ScrollArea>
-                  </div>
+
+                      {/* Form sections */}
+                      {renderFormSection("个人信息")}
+                      {renderFormSection("教育背景")}
+                      {renderFormSection("语言能力")}
+                      {renderFormSection("申请信息")}
+                      {renderFormSection("推荐信息")}
+
+                      {/* 占位，用于底部按钮与内容分离 */}
+                      <div className="h-12 md:h-16" />
+                    </div>
+                  </ScrollArea>
 
                   {/* 悬浮的右下角submit按钮 */}
                   <div className="absolute bottom-4 right-4 z-20">
