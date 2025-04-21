@@ -731,7 +731,7 @@ export function ChatInterface() {
                 申请表格预览
               </h2>
             </div>
-            <div className="relative flex-1 overflow-hidden">
+            <div className="relative flex-1 overflow-auto">
               {!showForm ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
                   <div className="text-center p-4">
@@ -741,11 +741,11 @@ export function ChatInterface() {
                   </div>
                 </div>
               ) : (
-                <div className="h-full flex flex-col">
-                  {/* Scrollable preview */}
-                  <ScrollArea className="flex-1 h-full">
-                    <div className="p-4 pb-24">
-                      {/* Form header和状态说明 */}
+                <div className="h-full flex flex-col relative">
+                  {/* 使用 ScrollArea 组件包装表单内容 */}
+                  <ScrollArea className="h-full w-full">
+                    <div className="p-4 pb-20">
+                      {/* 表单头部和状态说明 */}
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
@@ -764,20 +764,17 @@ export function ChatInterface() {
                         </div>
                       </div>
 
-                      {/* Form sections */}
+                      {/* 表单部分 */}
                       {renderFormSection("个人信息")}
                       {renderFormSection("教育背景")}
                       {renderFormSection("语言能力")}
                       {renderFormSection("申请信息")}
                       {renderFormSection("推荐信息")}
-
-                      {/* 占位，用于底部按钮与内容分离 */}
-                      <div className="h-12 md:h-16" />
                     </div>
                   </ScrollArea>
 
                   {/* 悬浮的右下角submit按钮 */}
-                  <div className="absolute bottom-4 right-4 z-20">
+                  <div className="absolute bottom-4 right-4 z-10">
                     <Button
                       className="bg-app-blue hover:bg-app-blue-dark min-w-[140px] shadow-lg"
                       onClick={handleSubmitForm}
