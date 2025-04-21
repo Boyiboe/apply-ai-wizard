@@ -61,14 +61,22 @@ export function ChatInterface() {
   const [formFields, setFormFields] = useState<FormFieldType[]>([]);
   
   const { toast } = useToast();
-  const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatScrollAreaRef = useRef<HTMLDivElement>(null);
   const form = useForm();
   
-  // 自动滚动到最新消息
+  // 自动滚动到最新消息，但保留用户的滚动位置
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    // 如果用户滚动到底部附近（100px内），则自动滚动到底部
+    // 否则保持当前滚动位置，让用户可以继续查看历史消息
+    if (chatScrollAreaRef.current) {
+      const scrollElement = chatScrollAreaRef.current;
+      const isNearBottom = 
+        scrollElement.scrollHeight - scrollElement.clientHeight - scrollElement.scrollTop < 100;
+      
+      if (isNearBottom && messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
     }
   }, [messages]);
   
@@ -642,7 +650,7 @@ export function ChatInterface() {
     );
   };
 
-  // 修改渲染方法以正确处理滚动
+  // 渲染方法
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-hidden">
@@ -656,7 +664,10 @@ export function ChatInterface() {
               </h2>
             </div>
             
-            <ScrollArea className="flex-1">
+            <div 
+              className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300" 
+              ref={chatScrollAreaRef}
+            >
               <div className="space-y-4 p-4">
                 {messages.map((message) => (
                   <div
@@ -688,7 +699,7 @@ export function ChatInterface() {
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-            </ScrollArea>
+            </div>
             
             {/* 文件上传组件 */}
             <div className="p-4 border-t">
@@ -728,7 +739,7 @@ export function ChatInterface() {
             </div>
           </Card>
           
-          {/* 表单预览区域 - 修复滚动问题 */}
+          {/* 表单预览区域 */}
           <Card className="relative flex flex-col h-full border">
             <div className="p-4 border-b bg-card">
               <h2 className="text-lg font-medium flex items-center">
@@ -747,9 +758,8 @@ export function ChatInterface() {
                 </div>
               ) : (
                 <div className="h-full relative">
-                  {/* 完全修复的滚动区域实现 */}
-                  <ScrollArea className="h-full">
-                    <div className="p-4 pb-32">
+                  <div className="h-full overflow-auto pb-20">
+                    <div className="p-4">
                       {/* 表单头部和状态说明 */}
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-medium">哈佛大学 - 计算机科学申请表</h3>
@@ -776,10 +786,10 @@ export function ChatInterface() {
                       {renderFormSection("申请信息")}
                       {renderFormSection("推荐信息")}
                     </div>
-                  </ScrollArea>
+                  </div>
 
-                  {/* 悬浮的右下角submit按钮 - 增加z-index确保显示 */}
-                  <div className="absolute bottom-6 right-6 z-50">
+                  {/* 悬浮的右下角submit按钮 */}
+                  <div className="sticky bottom-6 right-6 float-right mr-6 z-50">
                     <Button
                       className="bg-app-blue hover:bg-app-blue-dark min-w-[140px] shadow-lg"
                       onClick={handleSubmitForm}
