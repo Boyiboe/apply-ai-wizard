@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { School, AlertCircle, FileText, FileWarning, Check, X } from "lucide-react";
+import { useState, useEffect } from "react";
 
 type FormFieldType = {
   id: string;
@@ -20,8 +21,46 @@ interface FormPreviewProps {
 }
 
 export function FormPreview({ showForm, formFields, onSubmit }: FormPreviewProps) {
+  const [localFormFields, setLocalFormFields] = useState<FormFieldType[]>(formFields);
+
+  // Update local form fields when prop changes
+  useEffect(() => {
+    setLocalFormFields(formFields);
+  }, [formFields]);
+
+  const handleUseConflictValue = (fieldId: string) => {
+    setLocalFormFields(prev => 
+      prev.map(field => {
+        if (field.id === fieldId && field.conflictValue) {
+          return {
+            ...field,
+            value: field.conflictValue,
+            conflictValue: undefined,
+            conflictSource: undefined
+          };
+        }
+        return field;
+      })
+    );
+  };
+
+  const handleIgnoreConflict = (fieldId: string) => {
+    setLocalFormFields(prev => 
+      prev.map(field => {
+        if (field.id === fieldId) {
+          return {
+            ...field,
+            conflictValue: undefined,
+            conflictSource: undefined
+          };
+        }
+        return field;
+      })
+    );
+  };
+
   const renderFormSection = (category: string) => {
-    const categoryFields = formFields.filter(field => field.category === category);
+    const categoryFields = localFormFields.filter(field => field.category === category);
     if (categoryFields.length === 0) return null;
 
     return (
@@ -49,7 +88,13 @@ export function FormPreview({ showForm, formFields, onSubmit }: FormPreviewProps
                     className={`w-full border px-3 py-2 rounded-md text-sm ${
                       field.conflictValue ? "border-red-300 bg-red-50" : "border-input"
                     }`}
-                    defaultValue={field.value}
+                    value={field.value}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      setLocalFormFields(prev =>
+                        prev.map(f => (f.id === field.id ? { ...f, value: newValue } : f))
+                      );
+                    }}
                   />
                   {field.source && (
                     <div className="text-xs text-muted-foreground mt-1 flex items-center">
@@ -66,11 +111,17 @@ export function FormPreview({ showForm, formFields, onSubmit }: FormPreviewProps
                         <span>冲突值 (来源: {field.conflictSource})</span>
                       </div>
                       <div className="flex space-x-1">
-                        <button className="text-xs bg-green-500 text-white p-1 rounded-sm flex items-center">
+                        <button 
+                          className="text-xs bg-green-500 text-white p-1 rounded-sm flex items-center"
+                          onClick={() => handleUseConflictValue(field.id)}
+                        >
                           <Check className="h-3 w-3 mr-0.5" />
                           <span>使用</span>
                         </button>
-                        <button className="text-xs bg-muted-foreground text-white p-1 rounded-sm flex items-center">
+                        <button 
+                          className="text-xs bg-muted-foreground text-white p-1 rounded-sm flex items-center"
+                          onClick={() => handleIgnoreConflict(field.id)}
+                        >
                           <X className="h-3 w-3 mr-0.5" />
                           <span>忽略</span>
                         </button>
